@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:miniature_adventure/features/measurements/presentation/list/measurements_list_page.dart';
 import 'package:miniature_adventure/features/measurements/presentation/form/add_measurement_page.dart';
+import 'package:miniature_adventure/features/patients/presentation/patients_page.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -38,6 +39,7 @@ class _HomeShellState extends State<HomeShell> {
   final _pages = [
     MeasurementsListPage(), // lista Firestoresta
     AddMeasurementPage(),   // lisää/tallenna
+    PatientsPage(),             // Asiakkaat
   ];
 
   @override
@@ -50,6 +52,7 @@ class _HomeShellState extends State<HomeShell> {
         destinations: const [
           NavigationDestination(icon: Icon(Icons.list_alt), label: 'Lista'),
           NavigationDestination(icon: Icon(Icons.add_circle_outline), label: 'Lisää'),
+          NavigationDestination(icon: Icon(Icons.group), label: 'Asiakkaat'),
         ],
       ),
     );
