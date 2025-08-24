@@ -8,6 +8,11 @@
 | 26.7.2025 | 8          | Koodaamista, käyttöliittymän suunnittelua, verenpainemittarin Bluetooth yhteyden selvittämistä |
 | 27.7.2025 | 5          | Koodaamista, käyttöliittymän suunnittelua, verenpainemittarin Bluetooth yhteyden selvittämistä |
 | 1.8.2025 | 1          | Jatkon suunnittelua |
-| 2.8.2025 |          |  |
-| Tunnit yhteensä | 23 |
+| 2.8.2025 | 6       | Android studiosta vscodeen siirto, koodaamista |
+| 3.8.2025 | 6       | Koodaamista, tietokantaa yms |
+| 7.8.2025 | 3      | Koodaamista,  |
+| 9.8.2025 | 6       | Koodaamista,  |
+| 10.8.2025 | 6       | Koodaamista, |
+| 11.8.2025 | 3      | Koodaamista,  |
+| Tunnit yhteensä | 53 |
 

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "599618365697",
+    "project_id": "miniature-adventure",
+    "storage_bucket": "miniature-adventure.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:599618365697:android:032b3665a97f7481d15300",
+        "android_client_info": {
+          "package_name": "com.example.miniature_adventure"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAcyEujbsZ1-xd_Ex6YkWLym0Ot8D7y4SM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -4,7 +4,7 @@ import 'package:miniature_adventure/main.dart';
 
 void main() {
   testWidgets('App builds', (tester) async {
-    await tester.pumpWidget(const MiniAdventureApp());
+    await tester.pumpWidget(const MyApp());
     // Vain varmistetaan, että MaterialApp rakentuu ilman kaatumista
     expect(find.byType(MaterialApp), findsOneWidget);
   });
