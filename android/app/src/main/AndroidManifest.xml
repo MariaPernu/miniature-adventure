@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- BLE laitteessa on pakko olla -->
+    <!-- BLE-laitteen pitää olla olemassa -->
     <uses-feature
         android:name="android.hardware.bluetooth_le"
         android:required="true" />
@@ -11,7 +11,7 @@
         android:usesPermissionFlags="neverForLocation" />
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
 
-    <!-- Android 11 ja aiemmat (rajaa 30:een, ettei tule varoituksia) -->
+    <!-- Android 11 ja aiemmat (maxSdkVersion = 30, jotta ei tule varoituksia) -->
     <uses-permission
         android:name="android.permission.BLUETOOTH"
         android:maxSdkVersion="30" />
@@ -21,13 +21,12 @@
     <uses-permission
         android:name="android.permission.ACCESS_FINE_LOCATION"
         android:maxSdkVersion="30" />
-    <!-- (valinnainen, mutta turvallinen lisä) -->
     <uses-permission
         android:name="android.permission.ACCESS_COARSE_LOCATION"
         android:maxSdkVersion="30" />
 
     <application
-        android:label="miniature_adventure"
+        android:label="VireLink"
         android:icon="@mipmap/ic_launcher">
 
         <activity
@@ -44,8 +43,8 @@
                 android:resource="@style/NormalTheme" />
 
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
@@ -53,12 +52,4 @@
             android:name="flutterEmbedding"
             android:value="2" />
     </application>
-
-    <!-- Tämä PROCESS_TEXT-queries on ok; ei tarvita erillistä BT-queriesia -->
-    <queries>
-        <intent>
-            <action android:name="android.intent.action.PROCESS_TEXT"/>
-            <data android:mimeType="text/plain"/>
-        </intent>
-    </queries>
 </manifest>

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:miniature_adventure/features/patients/presentation/patient_measurements_page.dart';
+import 'package:virelink/features/patients/presentation/patient_measurements_page.dart';
 import '../data/firebase_patient_repository.dart';
 import '../domain/patient.dart';
 

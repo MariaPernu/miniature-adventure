@@ -45,6 +45,30 @@ class Measurement {
     this.glucoseContext,
   });
 
+  /// Näytettävä arvo listaan (RR+P / HR / lämpö / glukoosi)
+  String get displayValue {
+    if (systolicMmHg != null && diastolicMmHg != null) {
+      final bp = '$systolicMmHg/$diastolicMmHg mmHg';
+      return pulseBpm != null ? '$bp • $pulseBpm bpm' : bp;
+    }
+    if (heartRateBpm != null) return '$heartRateBpm bpm';
+    if (temperatureCelsius != null) {
+      return '${temperatureCelsius!.toStringAsFixed(1)} °C';
+    }
+    if (glucoseMmolL != null) {
+      return '${glucoseMmolL!.toStringAsFixed(1)} mmol/L';
+    }
+    return '';
+  }
+
+  /// Aikaleima käyttöliittymään muodossa HH:MM (paikallisaika)
+  String get formattedTime {
+    final local = timestamp.toLocal();
+    final hh = local.hour.toString().padLeft(2, '0');
+    final mm = local.minute.toString().padLeft(2, '0');
+    return '$hh:$mm';
+  }
+
   Map<String, dynamic> toMap() => {
         'type': type.asKey,
         'timestamp': timestamp.millisecondsSinceEpoch,

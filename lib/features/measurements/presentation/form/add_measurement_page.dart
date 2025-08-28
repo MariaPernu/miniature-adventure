@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-import 'package:miniature_adventure/features/measurements/domain/enums.dart';
-import 'package:miniature_adventure/features/measurements/domain/measurement.dart';
-import 'package:miniature_adventure/features/patients/data/firebase_patient_repository.dart';
-import 'package:miniature_adventure/features/patients/domain/patient.dart';
+import 'package:virelink/features/measurements/domain/enums.dart';
+import 'package:virelink/features/measurements/domain/measurement.dart';
+import 'package:virelink/features/patients/data/firebase_patient_repository.dart';
+import 'package:virelink/features/patients/domain/patient.dart';
 
 class AddMeasurementPage extends StatefulWidget {
   const AddMeasurementPage({super.key});
