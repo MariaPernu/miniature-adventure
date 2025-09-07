@@ -1,95 +1,103 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+
 import '../../measurements/presentation/heart_rate_live_page.dart';
 import '../../measurements/data/firebase_measurement_repository.dart';
 import '../../measurements/domain/measurement.dart';
 import '../../measurements/domain/enums.dart';
+import '../../measurements/presentation/thermo_live_page.dart';
 
 class PatientMeasurementsPage extends StatelessWidget {
   final String uid;         // kirjautuneen käyttäjän uid
   final String patientId;   // patients-kokoelman docId
   final String patientName; // näytetään appbarissa
 
-  const PatientMeasurementsPage({
+  PatientMeasurementsPage({
     super.key,
     required this.uid,
     required this.patientId,
     required this.patientName,
   });
 
+  final repo = FirebaseMeasurementRepository(FirebaseFirestore.instance);
+
   @override
   Widget build(BuildContext context) {
-    final repo = FirebaseMeasurementRepository(FirebaseFirestore.instance);
-
     return Scaffold(
       appBar: AppBar(title: Text('Mittaukset – $patientName')),
       body: Column(
         children: [
           // ---------------- PIKANAPIT ----------------
-         Padding(
-  padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
-  child: Column(
-    crossAxisAlignment: CrossAxisAlignment.stretch,
-    children: [
-      // Verenpaine
-      SizedBox(
-        width: double.infinity,
-        child: OutlinedButton.icon(
-          onPressed: () => _openAddBpDialog(context, repo),
-          icon: const Icon(Icons.monitor_heart, size: 18),
-          label: const Text('Verenpaine'),
-          style: OutlinedButton.styleFrom(
-            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Verenpaine
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: () => _openAddBpDialog(context),
+                    icon: const Icon(Icons.monitor_heart, size: 18),
+                    label: const Text('Verenpaine'),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+
+                // Pulssi (live)
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: () {
+                      Navigator.of(context).push(MaterialPageRoute(
+                        builder: (_) => HeartRateLivePage(
+                          uid: uid,
+                          patientId: patientId,
+                          patientName: patientName,
+                        ),
+                      ));
+                    },
+                    icon: const Icon(Icons.favorite, size: 18),
+                    label: const Text('Pulssi'),
+                  ),
+                ),
+                const SizedBox(height: 8),
+
+                // Lämpö (BLE live + Withings-synkka Thermo-sivulla)
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => ThermoLivePage(
+                            uid: uid,
+                            patientId: patientId,
+                            patientName: patientName,
+                          ),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.thermostat, size: 18),
+                    label: const Text('Lämpö'),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
-        ),
-      ),
-      const SizedBox(height: 8),
-
-      // Livepulssi
-SizedBox(
-  width: double.infinity,
-  child: OutlinedButton.icon(
-    onPressed: () {
-      Navigator.of(context).push(MaterialPageRoute(
-        builder: (_) => HeartRateLivePage(
-          uid: uid,
-          patientId: patientId,
-          patientName: patientName,
-        ),
-      ));
-    },
-    icon: const Icon(Icons.favorite, size: 18),
-    label: const Text('Pulssi'),
-  ),
-),
-const SizedBox(height: 8),
-
-
-      // Lämpö (lisätään toiminnallisuus myöhemmin)
-      SizedBox(
-        width: double.infinity,
-        child: OutlinedButton.icon(
-          onPressed: () {
-            // Lisätään myöhemmin
-          },
-          icon: const Icon(Icons.thermostat, size: 18),
-          label: const Text('Lämpö'),
-          style: OutlinedButton.styleFrom(
-            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
-            ),
-          ),
-        ),
-      ),
-    ],
-  ),
-),
-const SizedBox(height: 8),
-
+          const SizedBox(height: 8),
 
           // ---------------- LISTA ----------------
           Expanded(
@@ -105,14 +113,8 @@ const SizedBox(height: 8),
 
                 final measurements = snap.data!;
                 if (measurements.isEmpty) {
-                  // Toiminnallinen tyhjätila
-                  return Center(
-                    child: TextButton.icon(
-                      icon: const Icon(Icons.add),
-                      label: const Text('Lisää ensimmäinen verenpaine'),
-                      onPressed: () => _openAddBpDialog(context, repo),
-                    ),
-                  );
+                  // Poistettu "Lisää ensimmäinen verenpaine" -painike
+                  return const Center(child: Text('Ei mittauksia vielä'));
                 }
 
                 return ListView.separated(
@@ -121,15 +123,12 @@ const SizedBox(height: 8),
                   itemBuilder: (_, i) {
                     final m = measurements[i];
 
-                    // alaotsikko: HH:MM (+ mahdollinen muistiinpano)
+                    // alaotsikko: DD.MM.YYYY HH:MM (+ muistiinpano)
                     final parts = <String>[];
                     final dt = m.timestamp.toLocal();
                     final dateStr =
-                        "${dt.day.toString().padLeft(2, '0')}.${dt.month.toString().padLeft(2, '0')}.${dt.year}";
-                    final timeStr =
-                        "${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}";
-
-                    parts.add("$dateStr $timeStr");
+                        "${_dd(dt)}.${_mm(dt)}.${dt.year} ${_hh(dt)}:${_min(dt)}";
+                    parts.add(dateStr);
 
                     final note = m.note?.trim() ?? '';
                     if (note.isNotEmpty) parts.add(note);
@@ -138,8 +137,8 @@ const SizedBox(height: 8),
 
                     return ListTile(
                       dense: true,
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 6),
+                      contentPadding:
+                          const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                       leading: Icon(_typeIcon(m.type)),
                       title: Text(_typeLabel(m.type)),
                       subtitle: Text(subtitle),
@@ -159,12 +158,9 @@ const SizedBox(height: 8),
     );
   }
 
-  // =================== DIALOGIT ===================
+  // =================== DIALOGI: lisää verenpaine ===================
 
-  Future<void> _openAddBpDialog(
-    BuildContext context,
-    FirebaseMeasurementRepository repo,
-  ) async {
+  Future<void> _openAddBpDialog(BuildContext context) async {
     final sysCtrl = TextEditingController();
     final diaCtrl = TextEditingController();
     final pulseCtrl = TextEditingController();
@@ -205,9 +201,7 @@ const SizedBox(height: 8),
               ),
               TextFormField(
                 controller: pulseCtrl,
-                decoration: const InputDecoration(
-                  labelText: 'Pulssi',
-                ),
+                decoration: const InputDecoration(labelText: 'Pulssi'),
                 keyboardType: TextInputType.number,
                 validator: (v) {
                   final t = (v ?? '').trim();
@@ -220,9 +214,7 @@ const SizedBox(height: 8),
               ),
               TextFormField(
                 controller: noteCtrl,
-                decoration: const InputDecoration(
-                  labelText: 'Muistiinpano',
-                ),
+                decoration: const InputDecoration(labelText: 'Muistiinpano'),
               ),
             ],
           ),
@@ -252,17 +244,15 @@ const SizedBox(height: 8),
       note: noteCtrl.text.trim().isEmpty ? null : noteCtrl.text.trim(),
       systolicMmHg: int.parse(sysCtrl.text.trim()),
       diastolicMmHg: int.parse(diaCtrl.text.trim()),
-      pulseBpm:
-          (pulseCtrl.text.trim().isEmpty) ? null : int.parse(pulseCtrl.text.trim()),
+      pulseBpm: (pulseCtrl.text.trim().isEmpty) ? null : int.parse(pulseCtrl.text.trim()),
     );
 
     await repo.add(uid, patientId, m);
 
-    if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Verenpaine tallennettu')),
-      );
-    }
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Verenpaine tallennettu')),
+    );
   }
 
   // =================== APUT ===================
@@ -288,4 +278,9 @@ const SizedBox(height: 8),
         return Icons.thermostat;
     }
   }
+
+  String _dd(DateTime dt) => dt.day.toString().padLeft(2, '0');
+  String _mm(DateTime dt) => dt.month.toString().padLeft(2, '0');
+  String _hh(DateTime dt) => dt.hour.toString().padLeft(2, '0');
+  String _min(DateTime dt) => dt.minute.toString().padLeft(2, '0');
 }

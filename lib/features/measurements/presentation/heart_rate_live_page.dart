@@ -30,6 +30,7 @@ class _HeartRateLivePageState extends State<HeartRateLivePage> {
   int? _currentBpm;
   String _status = 'Ei yhteyttä';
   bool _isConnecting = false;
+  bool _isSaving = false;
 
   @override
   void dispose() {
@@ -47,8 +48,7 @@ class _HeartRateLivePageState extends State<HeartRateLivePage> {
     });
 
     try {
-      await _ble.disconnect(); // varmuussiivous
-
+      await _ble.disconnect();
       final id = await _ble.scanAndConnect(
         scanTimeout: const Duration(seconds: 15),
         connectTimeout: const Duration(seconds: 15),
@@ -56,21 +56,16 @@ class _HeartRateLivePageState extends State<HeartRateLivePage> {
       if (!mounted) return;
 
       if (id == null) {
-        setState(() {
-          _status = 'Laitetta ei löytynyt';
-        });
+        setState(() => _status = 'Laitetta ei löytynyt');
         return;
       }
 
-      setState(() {
-        _status = 'Yhdistetty';
-      });
+      setState(() => _status = 'Yhdistetty');
 
-      _hrSub?.cancel();
+      await _hrSub?.cancel();
       _hrSub = _ble.heartRateStream().listen((bpm) {
-        setState(() {
-          _currentBpm = bpm;
-        });
+        if (!mounted) return;
+        setState(() => _currentBpm = bpm);
       }, onError: (e) {
         if (!mounted) return;
         setState(() => _status = 'Virhe: ${e.toString().split('\n').first}');
@@ -94,7 +89,9 @@ class _HeartRateLivePageState extends State<HeartRateLivePage> {
   }
 
   Future<void> _saveLatest() async {
+    if (_isSaving) return;
     final latest = _currentBpm;
+
     if (latest == null || latest <= 0) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -103,40 +100,54 @@ class _HeartRateLivePageState extends State<HeartRateLivePage> {
       return;
     }
 
-    final now = DateTime.now();
-    final m = Measurement(
-      id: '',
-      type: MeasurementType.heartRate,
-      timestamp: now,
-      utcOffsetMinutes: now.timeZoneOffset.inMinutes,
-      // VAIHDA tähän teidän enumista BLE-lähde, jos sellainen on (esim. SourceType.bluetooth)
-      source: SourceType.manual,
-      note: null,
-      heartRateBpm: latest,
-    );
+    if (latest < 30 || latest > 240) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Epätodennäköinen arvo ($latest bpm)')),
+      );
+      return;
+    }
 
-    await _repo.add(widget.uid, widget.patientId, m);
+    setState(() => _isSaving = true);
 
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Tallennettu: $latest')),
-    );
+    try {
+      final now = DateTime.now();
+      final m = Measurement(
+        id: '',
+        type: MeasurementType.heartRate,
+        timestamp: now,
+        utcOffsetMinutes: now.timeZoneOffset.inMinutes,
+        source: SourceType.bluetooth,
+        note: null,
+        heartRateBpm: latest,
+      );
+
+      await _repo.add(widget.uid, widget.patientId, m);
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Tallennettu: $latest bpm')),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Tallennus epäonnistui: ${e.toString().split('\n').first}')),
+      );
+    } finally {
+      if (mounted) setState(() => _isSaving = false);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Pulssi – ${widget.patientName}'),
-      ),
-      // SafeArea varmistaa, etteivät napit jää alareunan navigaation alle
+      appBar: AppBar(title: Text('Pulssi – ${widget.patientName}')),
       body: SafeArea(
         bottom: true,
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+          padding: const EdgeInsets.all(16),
           child: Column(
             children: [
-              // Yhteystila (minimaalinen)
               Row(
                 children: [
                   Icon(
@@ -145,39 +156,25 @@ class _HeartRateLivePageState extends State<HeartRateLivePage> {
                         : Icons.bluetooth_disabled,
                   ),
                   const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      _status,
-                      style: const TextStyle(fontSize: 14),
-                    ),
-                  ),
+                  Expanded(child: Text(_status, style: const TextStyle(fontSize: 14))),
                 ],
               ),
               const SizedBox(height: 16),
-
-              // Iso arvo keskelle
               Expanded(
                 child: Center(
                   child: Text(
-                    _currentBpm != null && _currentBpm! > 0
-                        ? '${_currentBpm!}'
-                        : '--',
-                    style: const TextStyle(
-                      fontSize: 72,
-                      fontWeight: FontWeight.w700,
-                    ),
+                    _currentBpm != null && _currentBpm! > 0 ? '${_currentBpm!}' : '--',
+                    style: const TextStyle(fontSize: 72, fontWeight: FontWeight.w700),
                   ),
                 ),
               ),
-
-              // Nappirivi: Yhdistä / Katkaise
               Row(
                 children: [
                   Expanded(
                     child: ElevatedButton.icon(
                       onPressed: _isConnecting ? null : _connect,
                       icon: const Icon(Icons.bluetooth_searching),
-                      label: Text(_isConnecting ? 'Yhdistetään…' : 'Yhdistä Polar H10'),
+                      label: Text(_isConnecting ? 'Yhdistetään…' : 'Yhdistä HR-laite'),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -191,16 +188,14 @@ class _HeartRateLivePageState extends State<HeartRateLivePage> {
                 ],
               ),
               const SizedBox(height: 12),
-
-              // Tallenna viimeisin
               SizedBox(
                 width: double.infinity,
                 child: FilledButton.icon(
-                  onPressed: (_currentBpm == null || _currentBpm! <= 0)
+                  onPressed: (_currentBpm == null || _currentBpm! <= 0 || _isSaving)
                       ? null
                       : _saveLatest,
                   icon: const Icon(Icons.save),
-                  label: const Text('Tallenna'),
+                  label: Text(_isSaving ? 'Tallennetaan…' : 'Tallenna'),
                 ),
               ),
             ],

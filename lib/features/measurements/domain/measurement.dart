@@ -6,24 +6,14 @@ class Measurement {
   final DateTime timestamp;
   final int utcOffsetMinutes;
   final SourceType source;
-  final Posture? posture;
   final String? note;
-  final String? deviceMeta;
-  final Map<String, dynamic>? raw;
 
-  // subtype fields (nullable)
+  // Alatyypit (nullable)
   final int? systolicMmHg;
   final int? diastolicMmHg;
   final int? pulseBpm;
-
   final double? temperatureCelsius;
-  final TempSite? temperatureSite;
-
   final int? heartRateBpm;
-
-  // (glukoosi jätetty valinnaiseksi; lisää tarvittaessa)
-  final double? glucoseMmolL;
-  final GlucoseContext? glucoseContext;
 
   Measurement({
     required this.id,
@@ -31,21 +21,15 @@ class Measurement {
     required this.timestamp,
     required this.utcOffsetMinutes,
     required this.source,
-    this.posture,
     this.note,
-    this.deviceMeta,
-    this.raw,
     this.systolicMmHg,
     this.diastolicMmHg,
     this.pulseBpm,
     this.temperatureCelsius,
-    this.temperatureSite,
     this.heartRateBpm,
-    this.glucoseMmolL,
-    this.glucoseContext,
   });
 
-  /// Näytettävä arvo listaan (RR+P / HR / lämpö / glukoosi)
+  /// Näytettävä arvo listaan (RR+P / HR / lämpö)
   String get displayValue {
     if (systolicMmHg != null && diastolicMmHg != null) {
       final bp = '$systolicMmHg/$diastolicMmHg mmHg';
@@ -55,13 +39,10 @@ class Measurement {
     if (temperatureCelsius != null) {
       return '${temperatureCelsius!.toStringAsFixed(1)} °C';
     }
-    if (glucoseMmolL != null) {
-      return '${glucoseMmolL!.toStringAsFixed(1)} mmol/L';
-    }
     return '';
   }
 
-  /// Aikaleima käyttöliittymään muodossa HH:MM (paikallisaika)
+  /// Aikaleima HH:MM (paikallisaika)
   String get formattedTime {
     final local = timestamp.toLocal();
     final hh = local.hour.toString().padLeft(2, '0');
@@ -69,42 +50,50 @@ class Measurement {
     return '$hh:$mm';
   }
 
-  Map<String, dynamic> toMap() => {
-        'type': type.asKey,
-        'timestamp': timestamp.millisecondsSinceEpoch,
-        'utcOffsetMinutes': utcOffsetMinutes,
-        'source': source.asKey,
-        'posture': posture?.asKey,
-        'note': note,
-        'deviceMeta': deviceMeta,
-        'raw': raw,
-        'systolicMmHg': systolicMmHg,
-        'diastolicMmHg': diastolicMmHg,
-        'pulseBpm': pulseBpm,
-        'temperatureCelsius': temperatureCelsius,
-        'temperatureSite': temperatureSite?.asKey,
-        'heartRateBpm': heartRateBpm,
-        'glucoseMmolL': glucoseMmolL,
-        'glucoseContext': glucoseContext?.asKey,
-      };
+  /// ========== Firebase map ==========
+  /// Poistaa null-kentät -> ei kaadu sääntöihin.
+  Map<String, dynamic> toMap() {
+    final map = <String, dynamic>{
+      'type': type.asKey,
+      'timestamp': timestamp.millisecondsSinceEpoch,
+      'utcOffsetMinutes': utcOffsetMinutes,
+      'source': source.asKey,
+    };
+    if (note != null && note!.trim().isNotEmpty) {
+      map['note'] = note!.trim();
+    }
+    if (systolicMmHg != null) map['systolicMmHg'] = systolicMmHg;
+    if (diastolicMmHg != null) map['diastolicMmHg'] = diastolicMmHg;
+    if (pulseBpm != null) map['pulseBpm'] = pulseBpm;
+    if (temperatureCelsius != null) map['temperatureCelsius'] = temperatureCelsius;
+    if (heartRateBpm != null) map['heartRateBpm'] = heartRateBpm;
+    return map;
+  }
 
-  factory Measurement.fromDoc(String id, Map<String, dynamic> m) => Measurement(
-        id: id,
-        type: MeasurementTypeX.fromKey(m['type'] as String),
-        timestamp: DateTime.fromMillisecondsSinceEpoch((m['timestamp'] as num).toInt()),
-        utcOffsetMinutes: (m['utcOffsetMinutes'] as num).toInt(),
-        source: SourceTypeX.fromKey(m['source'] as String?),
-        posture: PostureX.fromKey(m['posture'] as String?),
-        note: m['note'] as String?,
-        deviceMeta: m['deviceMeta'] as String?,
-        raw: (m['raw'] as Map?)?.cast<String, dynamic>(),
-        systolicMmHg: m['systolicMmHg'] as int?,
-        diastolicMmHg: m['diastolicMmHg'] as int?,
-        pulseBpm: m['pulseBpm'] as int?,
-        temperatureCelsius: (m['temperatureCelsius'] as num?)?.toDouble(),
-        temperatureSite: TempSiteX.fromKey(m['temperatureSite'] as String?),
-        heartRateBpm: m['heartRateBpm'] as int?,
-        glucoseMmolL: (m['glucoseMmolL'] as num?)?.toDouble(),
-        glucoseContext: GlucoseContextX.fromKey(m['glucoseContext'] as String?),
-      );
+  /// ========== Factory-nimellinen konstruktori ==========
+  factory Measurement.fromDoc(String id, Map<String, dynamic> m) {
+    final typeStr = m['type'] as String?;
+    final sourceStr = m['source'] as String?;
+    final tsMs = (m['timestamp'] as num?)?.toInt()
+        ?? DateTime.now().millisecondsSinceEpoch;
+    final utcOff = (m['utcOffsetMinutes'] as num?)?.toInt() ?? 0;
+
+    return Measurement(
+      id: id,
+      type: MeasurementTypeX.fromKey(
+        typeStr ?? MeasurementType.temperature.asKey,
+      ),
+      timestamp: DateTime.fromMillisecondsSinceEpoch(tsMs),
+      utcOffsetMinutes: utcOff,
+      source: SourceTypeX.fromKey(
+        sourceStr ?? SourceType.manual.asKey,
+      ),
+      note: (m['note'] as String?)?.trim(),
+      systolicMmHg: (m['systolicMmHg'] as num?)?.toInt(),
+      diastolicMmHg: (m['diastolicMmHg'] as num?)?.toInt(),
+      pulseBpm: (m['pulseBpm'] as num?)?.toInt(),
+      temperatureCelsius: (m['temperatureCelsius'] as num?)?.toDouble(),
+      heartRateBpm: (m['heartRateBpm'] as num?)?.toInt(),
+    );
+  }
 }

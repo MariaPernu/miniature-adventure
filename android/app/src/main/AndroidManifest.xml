@@ -5,13 +5,16 @@
         android:name="android.hardware.bluetooth_le"
         android:required="true" />
 
+    <!-- Verkko OAuth- ja API-kutsuja varten -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <!-- Android 12+ (API 31+) -->
     <uses-permission
         android:name="android.permission.BLUETOOTH_SCAN"
         android:usesPermissionFlags="neverForLocation" />
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
 
-    <!-- Android 11 ja aiemmat (maxSdkVersion = 30, jotta ei tule varoituksia) -->
+    <!-- Android 11 ja aiemmat -->
     <uses-permission
         android:name="android.permission.BLUETOOTH"
         android:maxSdkVersion="30" />
@@ -32,9 +35,9 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:launchMode="singleTop"
+            android:launchMode="singleTask"
             android:theme="@style/LaunchTheme"
-            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|screenSize|smallestScreenSize|uiMode|layoutDirection|fontScale|density"
             android:hardwareAccelerated="true"
             android:windowSoftInputMode="adjustResize">
 
@@ -42,9 +45,25 @@
                 android:name="io.flutter.embedding.android.NormalTheme"
                 android:resource="@style/NormalTheme" />
 
+            <!-- Appin normaali käynnistys -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+            <!-- HUOM: EI OAuth-callback-intent-filteriä MainActivitylle -->
+        </activity>
+        <!-- AppAuthin vastaanottaja OAuth-redirectille -->
+        <activity
+            android:name="net.openid.appauth.RedirectUriReceiverActivity"
+            android:exported="true">
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:scheme="virelink"
+                    android:host="withings-callback" />
             </intent-filter>
         </activity>
 

@@ -40,50 +40,78 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     final spacing = const SizedBox(height: 18);
+    final screenW = MediaQuery.of(context).size.width;
+    final logoSize = (screenW * 0.4).clamp(120.0, 220.0);
+    final bottomInset = MediaQuery.of(context).viewInsets.bottom; // näppäimistö
+
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       body: SafeArea(
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 380),
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Row(children: const [
-                    Icon(Icons.favorite, size: 28),
-                    SizedBox(width: 8),
-                    Text('VireLink', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600)),
-                  ]),
-                  const SizedBox(height: 32),
-                  TextField(
-                    controller: _userCtrl,
-                    decoration: const InputDecoration(hintText: 'Käyttäjätunnus'),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+              padding: EdgeInsets.fromLTRB(24, 24, 24, 24 + bottomInset),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 420),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Iso logo + nimi
+                      Image.asset(
+                        'assets/icon.png',
+                        width: logoSize,
+                        height: logoSize,
+                        fit: BoxFit.contain,
+                      ),
+                      const SizedBox(height: 12),
+                      const Text(
+                        'VireLink',
+                        style: TextStyle(fontSize: 28, fontWeight: FontWeight.w700),
+                      ),
+                      const SizedBox(height: 32),
+
+                      // Kentät
+                      TextField(
+                        controller: _userCtrl,
+                        textInputAction: TextInputAction.next,
+                        decoration: const InputDecoration(hintText: 'Käyttäjätunnus'),
+                      ),
+                      spacing,
+                      TextField(
+                        controller: _passCtrl,
+                        obscureText: true,
+                        textInputAction: TextInputAction.done,
+                        onSubmitted: (_) => _loading ? null : _doLogin(),
+                        decoration: const InputDecoration(hintText: 'Salasana'),
+                      ),
+                      const SizedBox(height: 28),
+
+                      // Nappi
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: _loading ? null : _doLogin,
+                          child: _loading
+                              ? const SizedBox(
+                                  width: 18, height: 18,
+                                  child: CircularProgressIndicator(strokeWidth: 2),
+                                )
+                              : const Text('Kirjaudu sisään'),
+                        ),
+                      ),
+
+                      if (_error != null) ...[
+                        const SizedBox(height: 12),
+                        Text(_error!, style: const TextStyle(color: Colors.red)),
+                      ],
+                    ],
                   ),
-                  spacing,
-                  TextField(
-                    controller: _passCtrl,
-                    obscureText: true,
-                    decoration: const InputDecoration(hintText: 'Salasana'),
-                  ),
-                  const SizedBox(height: 28),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: _loading ? null : _doLogin,
-                      child: _loading
-                          ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
-                          : const Text('Kirjaudu sisään'),
-                    ),
-                  ),
-                  if (_error != null) ...[
-                    const SizedBox(height: 12),
-                    Text(_error!, style: const TextStyle(color: Colors.red)),
-                  ],
-                ],
+                ),
               ),
-            ),
-          ),
+            );
+          },
         ),
       ),
     );

@@ -2,7 +2,6 @@ enum MeasurementType { bloodPressure, temperature, heartRate }
 enum SourceType { bluetooth, manual }
 enum Posture { sitting, standing, lying, unknown }
 enum TempSite { ear, oral, axillary, forehead, unspecified }
-enum GlucoseContext { fasting, beforeMeal, afterMeal, bedtime, unspecified }
 
 extension MeasurementTypeX on MeasurementType {
   String get asKey {
@@ -38,10 +37,4 @@ extension TempSiteX on TempSite {
   String get asKey => name;
   static TempSite fromKey(String? v) =>
       TempSite.values.firstWhere((e) => e.name == v, orElse: () => TempSite.unspecified);
-}
-
-extension GlucoseContextX on GlucoseContext {
-  String get asKey => name;
-  static GlucoseContext fromKey(String? v) => GlucoseContext.values
-      .firstWhere((e) => e.name == v, orElse: () => GlucoseContext.unspecified);
 }

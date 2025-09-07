@@ -94,7 +94,7 @@ class _PatientsPageState extends State<PatientsPage> {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
     return Scaffold(
-      appBar: AppBar(title: const Text('Asiakkaat (TESTI)')),
+      appBar: AppBar(title: const Text('Asiakkaat')),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _addPatientDialog,
         icon: const Icon(Icons.person_add),
