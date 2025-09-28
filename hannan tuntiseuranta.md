@@ -9,8 +9,8 @@
 | 3.6.2025 | 5          | Ohjelmiston nimen suunnittelua ja proton yhdessä suunnittelua |
 | 7.6.2025 | 5          | Android studio ja Flutteriin tutustuminen |
 | 8.6.2025 | 4          | Android studio ja Flutteriin tutustuminen |
-| 11.6.2025 | 2         | Android studion lataaminen koneelle |
-| 14.6.2025 | 4          | Koodaamisen aloittelua yhdessä |
+| 11.6.2025 | 3         | Android studion lataaminen koneelle |
+| 14.6.2025 | 6          | Koodaamisen aloittelua yhdessä |
 | 15.6.2025 | 8          | Koodaamista, käyttöliittymän suunnittelua, verenpainemittarin Bluetooth yhteyden selvittämistä |
 | 16.6.2025 | 4          | Sprintti palaveri, koodaamista, käyttöliittymän suunnittelua |
 | 22.6.2025 | 5          | Koodaamista, käyttöliittymän suunnittelua, verenpainemittarin Bluetooth yhteyden selvittämistä |
@@ -22,7 +22,7 @@
 | 5.7.2025 | 6       | Koodaamista, tietokantaa yms |
 | 6.7.2025 | 4      | Koodaamista, sykemittarin bluetoothin tutkimista  |
 | 7.7.2025 | 3      | Koodaamista, sykemittarin bluetoothin tutkimista  |
-| 9.7.2025 | 6       | Koodaamista, sykemittarin lisääminen sovellukseen |
+| 9.7.2025 | 7       | Koodaamista, sykemittarin lisääminen sovellukseen |
 | 12.7.2025 | 6       | Koodaamista, verenpainemittarin selvittelyä  |
 | 13.7.2025 | 3      | Koodaamista, kuumemittarin bluetooth yhteyden tutkimista |
 | 14.7.2025 | 2       | Sprintti palaveri |
@@ -50,5 +50,5 @@
 | 9.9.2025 | 4         | Raportin ja esityksen viimeistelyä |
 | 10.9.2025 | 3         | Koulupäivä, projektin esittely |
 | 28.9.2025 | 2         | Tuntien tarkastus, palautus |
-| Tunnit yhteensä | 224 |
+| Tunnit yhteensä | 228 |
 
