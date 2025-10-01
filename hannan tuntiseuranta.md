@@ -3,7 +3,7 @@
 | 23.5.2025  | 2        | Aloituspalaveri |  
 | 25.5.2025  | 3        | Aivoriihi ja benchmarkkaus Microsoft WhiteBoardille, GitHubin ja trellon luominen, Flutteriin tutustumisen aloittelu |
 | 26.5.2025  | 3        | Laitteiden toimituksen selvittelyä, aivoriihen jatkamista |
-| 31.5.2025 | 3         | Aiheeseen tutustuminen, suunnittelua |
+| 31.5.2025 | 6         | Aiheeseen tutustuminen, suunnittelua |
 | 1.6.2025 | 3          | Aivoriihen jatkamista |
 | 2.6.2025 | 3          | Laitteisiin tutustumista ja laitteiden valinta, sähköposti Joonakselle, palaverien sopiminen |
 | 3.6.2025 | 5          | Ohjelmiston nimen suunnittelua ja proton yhdessä suunnittelua |
@@ -29,7 +29,7 @@
 | 18.7.2025 | 3       | Raportin aloitus |
 | 19.7.2025 | 7       | Koodaamista, kuumemittarin bluetooth yhteyden tutkimista |
 | 20.7.2025 | 4       | Koodaamista, kuumemittarin bluetooth yhteyden tutkimista |
-| 26.7.2025 | 5       | Koodaamista |
+| 26.7.2025 | 7       | Koodaamista |
 | 27.7.2025 | 5       | Koodaamista |
 | 28.7.2025 | 1       | Sprintti palaveri |
 | 2.8.2025  | 8       | yhdessä koodaamista |
@@ -50,5 +50,5 @@
 | 9.9.2025 | 4         | Raportin ja esityksen viimeistelyä |
 | 10.9.2025 | 3         | Koulupäivä, projektin esittely |
 | 28.9.2025 | 2         | Tuntien tarkastus, palautus |
-| Tunnit yhteensä | 228 |
+| Tunnit yhteensä | 233 |
 
